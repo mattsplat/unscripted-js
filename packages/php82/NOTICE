@@ -1,0 +1,12 @@
+@unscripted/php82
+
+This product includes PHP software, freely available from <http://www.php.net/software/>.
+
+php_pack.wasm contains:
+
+- PHP 8.2 (php-src, the PHP Group), under the PHP License 3.01: see LICENSE-PHP.
+- Unscripted's bridge to PHP (packs/php in https://github.com/mattsplat/unscripted: the
+  embedding code, the prelude, and small patches so PHP builds for WebAssembly), under
+  MIT OR Apache-2.0: see LICENSE-MIT and LICENSE-APACHE.
+
+This package is not made, endorsed or supported by the PHP Group.

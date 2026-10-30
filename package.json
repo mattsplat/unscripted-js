@@ -1,8 +1,12 @@
 {
-  "name": "unscripted-npm",
+  "name": "unscripted-js",
   "private": true,
-  "workspaces": ["packages/*"],
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "pack": "mkdir -p dist && npm pack --workspaces --pack-destination dist"
+    "pack": "mkdir -p dist && npm pack --workspaces --pack-destination dist",
+    "serve": "node scripts/serve.js"
   }
 }

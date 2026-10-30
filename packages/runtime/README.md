@@ -9,16 +9,16 @@ Chrome and Safari too. It answers the pack's one import, `host.request`, against
 ```html
 <script type="text/php" src="main.php"></script>
 <script src="https://cdn.jsdelivr.net/npm/@unscripted/runtime/auto.js"
-        data-php="https://cdn.jsdelivr.net/npm/@unscripted/php/php_pack.wasm"></script>
+        data-php="https://cdn.jsdelivr.net/npm/@unscripted/php84/php_pack.wasm"></script>
 ```
 
-Each `data-<pack>` attribute names that pack's `.wasm`. Pages must be served over http(s).
+Each `data-<pack>` attribute names that pack's `.wasm`: here PHP 8.4. Use `@unscripted/php82` for PHP 8.2. Pages must be served over http(s).
 
 ## As a module
 
 ```js
 import { load } from '@unscripted/runtime';
-import { wasm } from '@unscripted/php';
+import { wasm } from '@unscripted/php84';
 
 const php = await load('php', wasm);
 php.run(`<?php
@@ -33,7 +33,10 @@ tags in order.
 ## Not included
 
 Unscripted's own protections: its network gate, time limit, memory cap and replay. Here the
-page's code runs as any page's JavaScript does. Packs need WebAssembly exception handling, so a
+page's code runs as any page's JavaScript does, so a pack isn't a sandbox for untrusted code
+(see `SECURITY.md` in the repository). Packs need WebAssembly exception handling, so a
 recent browser.
 
-License: MIT OR Apache-2.0.
+## License
+
+MIT OR Apache-2.0 (`LICENSE-MIT`, `LICENSE-APACHE`).

@@ -7,11 +7,32 @@
     ".": "./index.js",
     "./auto.js": "./auto.js"
   },
-  "files": ["index.js", "auto.js", "README.md"],
+  "files": [
+    "index.js",
+    "auto.js",
+    "README.md",
+    "LICENSE-MIT",
+    "LICENSE-APACHE"
+  ],
   "browser": "./index.js",
   "jsdelivr": "./auto.js",
   "unpkg": "./auto.js",
   "license": "MIT OR Apache-2.0",
-  "repository": { "type": "git", "url": "https://github.com/mattsplat/unscripted", "directory": "npm/packages/runtime" },
-  "keywords": ["webassembly", "wasm", "php", "dom", "unscripted"]
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mattsplat/unscripted-js.git",
+    "directory": "packages/runtime"
+  },
+  "keywords": [
+    "webassembly",
+    "wasm",
+    "php",
+    "dom",
+    "unscripted"
+  ],
+  "author": "Matt Coleman",
+  "homepage": "https://github.com/mattsplat/unscripted-js#readme",
+  "bugs": {
+    "url": "https://github.com/mattsplat/unscripted-js/issues"
+  }
 }

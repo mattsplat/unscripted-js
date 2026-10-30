@@ -2,7 +2,7 @@
 //
 //   <script type="text/php" src="main.php"></script>
 //   <script src="https://cdn.jsdelivr.net/npm/@unscripted/runtime/auto.js"
-//           data-php="https://cdn.jsdelivr.net/npm/@unscripted/php/php_pack.wasm"></script>
+//           data-php="https://cdn.jsdelivr.net/npm/@unscripted/php84/php_pack.wasm"></script>
 //
 // Each data-<pack> attribute names that pack's .wasm (relative URLs resolve against the page).
 (() => {

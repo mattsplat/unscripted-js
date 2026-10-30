@@ -7,7 +7,7 @@
 // no files, environment or sockets.
 //
 //   import { load } from '@unscripted/runtime';
-//   import { wasm } from '@unscripted/php';
+//   import { wasm } from '@unscripted/php84';
 //   const php = await load('php', wasm);
 //   php.run('<?php U::document()->title;', 'inline.php');
 //

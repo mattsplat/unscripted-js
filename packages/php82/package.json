@@ -1,0 +1,44 @@
+{
+  "name": "@unscripted/php82",
+  "version": "0.1.0",
+  "description": "PHP 8.2 as an Unscripted language pack: php-src's embed SAPI compiled to WebAssembly, for @unscripted/runtime.",
+  "type": "module",
+  "exports": {
+    ".": "./index.js",
+    "./php_pack.wasm": "./php_pack.wasm"
+  },
+  "files": [
+    "index.js",
+    "version.js",
+    "php_pack.wasm",
+    "README.md",
+    "NOTICE",
+    "LICENSE-PHP",
+    "LICENSE-MIT",
+    "LICENSE-APACHE"
+  ],
+  "scripts": {
+    "prepack": "node ../../scripts/copy-php.js 8.2"
+  },
+  "peerDependencies": {
+    "@unscripted/runtime": "^0.1.0"
+  },
+  "license": "PHP-3.01 AND (MIT OR Apache-2.0)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mattsplat/unscripted-js.git",
+    "directory": "packages/php82"
+  },
+  "keywords": [
+    "php",
+    "php82",
+    "webassembly",
+    "wasm",
+    "unscripted"
+  ],
+  "author": "Matt Coleman",
+  "homepage": "https://github.com/mattsplat/unscripted-js#readme",
+  "bugs": {
+    "url": "https://github.com/mattsplat/unscripted-js/issues"
+  }
+}

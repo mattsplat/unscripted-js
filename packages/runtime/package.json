@@ -1,0 +1,17 @@
+{
+  "name": "@unscripted/runtime",
+  "version": "0.1.0",
+  "description": "Run Unscripted language packs (PHP in WebAssembly, more to come) in any browser, against the real DOM.",
+  "type": "module",
+  "exports": {
+    ".": "./index.js",
+    "./auto.js": "./auto.js"
+  },
+  "files": ["index.js", "auto.js", "README.md"],
+  "browser": "./index.js",
+  "jsdelivr": "./auto.js",
+  "unpkg": "./auto.js",
+  "license": "MIT OR Apache-2.0",
+  "repository": { "type": "git", "url": "https://github.com/mattsplat/unscripted", "directory": "npm/packages/runtime" },
+  "keywords": ["webassembly", "wasm", "php", "dom", "unscripted"]
+}

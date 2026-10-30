@@ -1,0 +1,8 @@
+{
+  "name": "unscripted-npm",
+  "private": true,
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "pack": "mkdir -p dist && npm pack --workspaces --pack-destination dist"
+  }
+}

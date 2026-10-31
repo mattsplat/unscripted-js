@@ -33,6 +33,8 @@ U::document()->querySelector('#add')->addEventListener('click', function () use 
 | [`@unscripted/runtime`](packages/runtime) | The runtime: answers a pack's requests against the real DOM. `auto.js` for a plain `<script>` tag, `index.js` as a module. | ~12 KB |
 | [`@unscripted/php84`](packages/php84) | PHP 8.4 as a language pack | 4.7 MB (~1.5 MB compressed) |
 | [`@unscripted/php82`](packages/php82) | PHP 8.2 as a language pack | 4.5 MB (~1.5 MB compressed) |
+| [`@unscripted/ui`](packages/ui) | Reactive components for PHP 8.4, in single Blade files: `ui.php`, loaded as a page script | ~29 KB |
+| [`unscripted/ui-server`](packages/ui-server) (Composer) | The server side of `@unscripted/ui`, for Laravel: `#[Server]` methods that run on the server, called from components | |
 
 A page only downloads the packs it uses: the runtime loads a pack when the page has scripts
 for it.

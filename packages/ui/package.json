@@ -1,0 +1,33 @@
+{
+  "name": "@unscripted/ui",
+  "version": "0.1.0",
+  "description": "Reactive components for Unscripted PHP: state, actions and two-way binding, rendered from PHP templates.",
+  "exports": {
+    "./ui.php": "./ui.php"
+  },
+  "files": [
+    "ui.php",
+    "README.md",
+    "LICENSE-MIT",
+    "LICENSE-APACHE"
+  ],
+  "license": "MIT OR Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mattsplat/unscripted-js.git",
+    "directory": "packages/ui"
+  },
+  "keywords": [
+    "webassembly",
+    "wasm",
+    "php",
+    "reactive",
+    "components",
+    "unscripted"
+  ],
+  "author": "Matt Coleman",
+  "homepage": "https://github.com/mattsplat/unscripted-js#readme",
+  "bugs": {
+    "url": "https://github.com/mattsplat/unscripted-js/issues"
+  }
+}

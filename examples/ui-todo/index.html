@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>@unscripted/ui todos</title>
+  <style>
+    body { font-family: sans-serif; max-width: 520px; margin: 40px auto; padding: 0 16px; color: #222; }
+    form { display: flex; gap: 8px; }
+    form input { flex: 1; font-size: 16px; padding: 6px 8px; }
+    button { font-size: 14px; padding: 4px 12px; border: 1px solid #888; border-radius: 6px; background: #f4f4f4; }
+    button.on { background: #222; color: #fff; }
+    ul { list-style: none; padding: 0; max-height: 320px; overflow-y: auto; }
+    li { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #eee; }
+    li.done label { text-decoration: line-through; color: #888; }
+    .remove { border: none; background: none; font-size: 18px; color: #888; }
+    footer { display: flex; gap: 8px; align-items: center; }
+    footer span { flex: 1; color: #666; }
+    .empty { color: #888; }
+  </style>
+</head>
+<body>
+  <h1>Todos</h1>
+  <div id="app">Loading PHP…</div>
+  <script type="text/blade" src="todo-app.blade.php" data-mount="#app"></script>
+  <script type="text/php" src="../../packages/ui/ui.php"></script>
+  <script src="../../packages/runtime/auto.js" data-php="../../packages/php84/php_pack.wasm"></script>
+</body>
+</html>

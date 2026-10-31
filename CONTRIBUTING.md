@@ -6,7 +6,10 @@
 packages/runtime/   @unscripted/runtime: index.js (the runtime), auto.js (drop-in script)
 packages/php84/     @unscripted/php84: PHP 8.4 (index.js; version.js and the pack are copied in when packing)
 packages/php82/     @unscripted/php82: PHP 8.2
+packages/ui/        @unscripted/ui: reactive components for PHP 8.4 (ui.php, loaded as a page script)
+packages/ui-server/ unscripted/ui-server (Composer): #[Server] methods for @unscripted/ui, on Laravel
 scripts/            copy-php.js (copies a PHP line in), serve.js (a local static server)
+tests/              npm test: run.mjs runs each *.test.php in the PHP 8.4 pack, in Node
 examples/           pages that run through the runtime
 ```
 
@@ -26,7 +29,17 @@ Set `UNSCRIPTED_REPO` if the Unscripted repo isn't at `../browser-test`.
 
 ## Testing
 
-Serve the repo (`npm run serve`, or any static server that sends `.wasm` as
+`npm test` runs `tests/*.test.php` in the PHP 8.4 pack, in Node with no browser: what
+`@unscripted/ui` does without a DOM, such as compiling Blade. It needs Node 24 or later
+(`nvm use 24`) and the pack copied in. A test file loads after `ui.php` and `tests/helpers.php`,
+reports with `check($label, $got, $want)` and `fails($label, $fn, $message)`, and ends with
+`done()`. Each file gets a fresh pack.
+
+`packages/ui-server` has its own: `composer test` there (the host's PHP 8.4, no Laravel). To
+try `#[Server]` methods in a browser, use a Laravel app that requires the package through a
+Composer path repository (`"url": "../unscripted-js/packages/ui-server"`).
+
+For what needs a page, serve the repo (`npm run serve`, or any static server that sends `.wasm` as
 `application/wasm`) and open each example in a browser, checking
 its console. Before a release, test in Firefox, Chrome and Safari, and test the packed
 `.tgz` files installed into a fresh project (`npm install ./dist/*.tgz`), not just the
@@ -40,6 +53,9 @@ workspace; `node scripts/serve.js <folder>` serves that project.
 - The runtime answers requests the way Unscripted's browser does (`browser/src/interpreter.rs`
   for the WASI functions, `browser/src/host.rs` for the operations). Behaviour should match
   where it can.
+- `window.unscriptedMorph` (the runtime's `morph`) is this repo's own: Unscripted's browser has
+  no equivalent yet, so `@unscripted/ui` falls back to replacing innerHTML there. Giving the
+  browser one would make the two match.
 
 ## PHP versions
 

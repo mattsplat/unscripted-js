@@ -7,6 +7,7 @@
   ],
   "scripts": {
     "pack": "mkdir -p dist && npm pack --workspaces --pack-destination dist",
-    "serve": "node scripts/serve.js"
+    "serve": "node scripts/serve.js",
+    "test": "node tests/run.mjs"
   }
 }

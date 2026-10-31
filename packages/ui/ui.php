@@ -66,9 +66,13 @@ use Unscripted as U;
 final class State {}
 
 /** Marks a public static method that runs on the server (unscripted/ui-server), not here: the
- * file the browser gets has a stub in its place, which returns a ServerCall. */
+ * file the browser gets has a stub in its place, which returns a ServerCall. `can` names the
+ * Laravel ability the server checks first. */
 #[Attribute(Attribute::TARGET_METHOD)]
-final class Server {}
+final class Server
+{
+    public function __construct(public readonly ?string $can = null) {}
+}
 
 /** On a #[Server] method: call it with these properties' values on mount and whenever they
  * change, and put what it returns in the property named like the method. With a `debounce`,

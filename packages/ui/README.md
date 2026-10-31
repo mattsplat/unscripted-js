@@ -169,6 +169,7 @@ The page needs Laravel's `<meta name="csrf-token" content="{{ csrf_token() }}">`
 | `#[Watch('query', debounce: 300)]` | Only once `$query` has stopped changing for 300 ms, as for a search box. `#[Watch(['query', 'page'])]` watches several, passed in that order |
 | `u-on:click="remove(3)"` | A `#[Server]` method straight from the page; what it returns isn't kept |
 | `$rows = yield static::search($q);` | In an action that returns `Generator`: waits for the call. `yield [static::a(), static::b()]` makes both in one request, getting both results |
+| `#[Server(can: 'remove-todo')]` | The server checks the Laravel ability first (`Gate::authorize`), passing it the call's arguments: `Gate::define('remove-todo', fn(?User $user, int $id) => ...)`. Denied is a 403 |
 | `catch (ServerError $e)` | A failed call, thrown into the action at its `yield`: `getMessage()`, `$e->status`, and `$e->errors` for a validation failure's messages by field |
 | `$this->loading('add')` | Whether that action or loader is waiting on the server; `$this->loading()` for any |
 
@@ -179,8 +180,8 @@ shows the last query's results, not the slowest. The server still does what the 
 asked.
 
 **Every public `#[Server]` method is a public HTTP endpoint**, whatever the template does with
-it: anyone can call it with any arguments. Check authorisation (`Gate::authorize`, `auth()`)
-and validate arguments in the method itself. Return arrays and scalars, picking the columns
+it: anyone can call it with any arguments. Check authorisation, with `can:` or in the method,
+and validate arguments in the method. Return arrays and scalars, picking the columns
 (`->get(['id', 'title'])`, `->only(...)`), so nothing the browser shouldn't see goes with it.
 `private` and `protected` `#[Server]` methods are server-only helpers, sent to the browser not
 even as stubs. The file's other code is sent as written: `use` lines name your classes.

@@ -1,8 +1,8 @@
 # @unscripted/runtime
 
 Runs [Unscripted](https://github.com/mattsplat/unscripted) language packs in any browser, so a
-page written for Unscripted (PHP today; Python and sandboxed JS to come) works in Firefox,
-Chrome and Safari too. It answers the pack's one import, `host.request`, against the real DOM.
+page written for Unscripted (PHP and Rust today; Python and sandboxed JS to come) works in
+Firefox, Chrome and Safari too. It answers the pack's one import, `host.request`, against the real DOM.
 
 ## No build step
 
@@ -12,7 +12,15 @@ Chrome and Safari too. It answers the pack's one import, `host.request`, against
         data-php="https://cdn.jsdelivr.net/npm/@unscripted/php84/php_pack.wasm"></script>
 ```
 
-Each `data-<pack>` attribute names that pack's `.wasm`: here PHP 8.4. Use `@unscripted/php82` for PHP 8.2. Pages must be served over http(s).
+Each `data-<pack>` attribute names that pack's `.wasm`: here PHP 8.4. Use `@unscripted/php82` for PHP 8.2.
+
+A Rust page needs no pack: its program is the script's `src`, built with Unscripted's
+`packs/rust/build.sh` on the `unscripted` crate, and started once (`rust_main`):
+
+```html
+<script type="application/rust" src="app.wasm"></script>
+<script src="https://cdn.jsdelivr.net/npm/@unscripted/runtime/auto.js"></script>
+``` Pages must be served over http(s).
 
 ## As a module
 

@@ -17,8 +17,13 @@
 // The page's code runs as any page's JavaScript would.
 
 /** The packs this runtime knows: the script type that selects one, and its exports' prefix.
- * Python and JS packs use the same ABI; they're listed once they're tested here. */
-export const PACKS = { php: { type: 'text/php', prefix: 'php' } };
+ * An interpreter (PHP) runs the page's source; a program (Rust) is the page's own .wasm, its
+ * script's `src`, started with `<prefix>_main`. Python and JS packs use the same ABI; they're
+ * listed once they're tested here. */
+export const PACKS = {
+  php: { type: 'text/php', prefix: 'php' },
+  rust: { type: 'application/rust', prefix: 'rust', program: true },
+};
 
 /** packs/HOST_API: the protocol this runtime speaks. A pack built for another is refused. */
 export const HOST_API = 2;
@@ -269,6 +274,11 @@ export class Pack {
   }
 
   /** Run one page script; `name` shows in error locations. */
+  /** Start a program (Rust): its `main!` entry point. */
+  main() {
+    this.check(this.call('main'), 'main');
+  }
+
   run(source, name) {
     const [src, srcLen] = this.write(source);
     const [at, atLen] = this.write(name);
@@ -297,12 +307,22 @@ async function scripts(type) {
 }
 
 /** Run the page's scripts for each pack in `wasmUrls` ({php: url, ...}), as Unscripted would,
- * once the page has loaded. Packs whose scripts the page doesn't have aren't loaded. */
+ * once the page has loaded. Packs whose scripts the page doesn't have aren't loaded. Programs
+ * (Rust) need no entry: the page's `<script type="application/rust" src="app.wasm">` is the
+ * program. */
 export async function runPage(wasmUrls) {
   if (document.readyState === 'loading') {
     await new Promise((done) => document.addEventListener('DOMContentLoaded', done, { once: true }));
   }
-  for (const [name, { type }] of Object.entries(PACKS)) {
+  for (const [name, { type, program }] of Object.entries(PACKS)) {
+    // A program is its script's src: each one is its own instance, started once.
+    if (program) {
+      for (const s of document.querySelectorAll(`script[type="${type}"][src]`)) {
+        const pack = await load(name, s.src);
+        pack.main();
+      }
+      continue;
+    }
     const wanted = await scripts(type);
     if (wanted.length === 0) continue;
     if (!wasmUrls[name]) {

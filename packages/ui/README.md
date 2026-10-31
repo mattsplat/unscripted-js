@@ -166,6 +166,7 @@ The page needs Laravel's `<meta name="csrf-token" content="{{ csrf_token() }}">`
 | | |
 |---|---|
 | `#[Server, Watch('query')]` | A loader: called with the watched properties' values on mount and when they change, its result put in the property of its name (`$todos`) |
+| `#[Watch('query', debounce: 300)]` | Only once `$query` has stopped changing for 300 ms, as for a search box. `#[Watch(['query', 'page'])]` watches several, passed in that order |
 | `u-on:click="remove(3)"` | A `#[Server]` method straight from the page; what it returns isn't kept |
 | `$rows = yield static::search($q);` | In an action that returns `Generator`: waits for the call. `yield [static::a(), static::b()]` makes both in one request, getting both results |
 | `catch (ServerError $e)` | A failed call, thrown into the action at its `yield`: `getMessage()`, `$e->status`, and `$e->errors` for a validation failure's messages by field |

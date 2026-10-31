@@ -25,9 +25,9 @@
 - `@unscripted/ui` server calls: `#[Server]` static methods run on the server, called from a
   generator action (`$rows = yield static::search($q);`, several at once with
   `yield [...]`), straight from the page (`u-on:click="remove(3)"`), or as `#[Watch]` loaders
-  that refill a property when the properties they watch change. Loaders run again after an
-  action's server calls; a flow started again drops the earlier one's result; failures arrive
-  as `ServerError`; `$this->loading()`. A component served with its `#[Server]` methods as
+  that refill a property when the properties they watch change (`debounce: ms` to wait for a
+  pause). Loaders run again after an action's server calls; a flow started again drops the
+  earlier one's result; failures arrive as `ServerError`; `$this->loading()`. A component served with its `#[Server]` methods as
   written refuses to mount.
 - `unscripted/ui-server` 0.1.0 (Composer, Laravel 12 and 13): serves `resources/components`
   with `#[Server]` method bodies replaced by stubs, and calls them at `POST /unscripted/call`,

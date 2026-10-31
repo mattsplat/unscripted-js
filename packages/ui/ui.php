@@ -71,15 +71,16 @@ final class State {}
 final class Server {}
 
 /** On a #[Server] method: call it with these properties' values on mount and whenever they
- * change, and put what it returns in the property named like the method. */
+ * change, and put what it returns in the property named like the method. With a `debounce`,
+ * only once they've stopped changing for that many milliseconds. */
 #[Attribute(Attribute::TARGET_METHOD)]
 final class Watch
 {
     public array $properties;
 
-    public function __construct(string ...$properties)
+    public function __construct(string|array $properties, public readonly int $debounce = 0)
     {
-        $this->properties = $properties;
+        $this->properties = (array) $properties;
     }
 }
 
@@ -138,6 +139,8 @@ abstract class Component
     private int $flowId = 0;
     /** Each #[Watch] loader's arguments when it last ran, as JSON. */
     private array $watched = [];
+    /** Debounced loaders' timers, by name. */
+    private array $timers = [];
     /** Set when an action's server calls are done, so every loader runs again for fresh data. */
     private bool $stale = false;
 
@@ -305,7 +308,9 @@ abstract class Component
      * whether any is. */
     public function loading(?string $name = null): bool
     {
-        return $name === null ? $this->flows !== [] : isset($this->flows[$name]);
+        return $name === null
+            ? $this->flows !== [] || $this->timers !== []
+            : isset($this->flows[$name]) || isset($this->timers[$name]);
     }
 
     /** Starts each #[Watch] loader whose properties changed since it last ran: all of them after
@@ -320,7 +325,8 @@ abstract class Component
                 continue;
             }
             $name = $method->name;
-            $args = array_map(fn($property) => $this->{$property}, $watch->newInstance()->properties);
+            $watch = $watch->newInstance();
+            $args = array_map(fn($property) => $this->{$property}, $watch->properties);
             $key = json_encode($args);
             if (!$stale && ($this->watched[$name] ?? null) === $key) {
                 continue;
@@ -328,12 +334,32 @@ abstract class Component
             if (!property_exists($this, $name)) {
                 throw new Error("the #[Watch] method $name needs a property \$$name to load into");
             }
+            $first = !isset($this->watched[$name]);
             $this->watched[$name] = $key;
-            $call = $method->invokeArgs(null, $args);
-            $this->run($name, (function () use ($name, $call) {
-                $this->{$name} = yield $call;
-            })(), loader: true);
+            U::clearTimeout($this->timers[$name] ?? null);
+            unset($this->timers[$name]);
+
+            if ($watch->debounce > 0 && !$first && !$stale) {
+                // Wait for a pause. What's in flight is dropped, so its older result can't land
+                // in the meantime.
+                unset($this->flows[$name]);
+                $this->timers[$name] = U::setTimeout(function () use ($name, $method, $args) {
+                    unset($this->timers[$name]);
+                    $this->fill($name, $method, $args);
+                }, $watch->debounce);
+                continue;
+            }
+            $this->fill($name, $method, $args);
         }
+    }
+
+    /** Runs loader `$name`: its server call, the result into the property of its name. */
+    private function fill(string $name, ReflectionMethod $method, array $args): void
+    {
+        $call = $method->invokeArgs(null, $args);
+        $this->run($name, (function () use ($name, $call) {
+            $this->{$name} = yield $call;
+        })(), loader: true);
     }
 
     /** Runs a flow: each server call it yields is sent, and the result sent back in (or the

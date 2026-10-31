@@ -12,3 +12,5 @@
   per PHP minor version, each with PHP's license and notice and a `phpVersion` export.
 - `npm run serve`: a dependency-free static server for the examples.
 - `examples/php-snake`: the PHP Snake game running through the runtime.
+- The runtime's `morph(root, html)`, also `window.unscriptedMorph`: patches a subtree to match
+  new HTML in one request, keeping the elements that stay.

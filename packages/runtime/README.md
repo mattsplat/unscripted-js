@@ -30,6 +30,12 @@ U::document()->querySelector('h1')->textContent = 'Hello from PHP';
 `runPage({ php: wasm })` does what `auto.js` does: runs the page's `<script type="text/php">`
 tags in order.
 
+## DOM patching
+
+`morph(root, html)` makes `root`'s children match `html`, keeping the elements that stay and
+changing only what differs (matched by `u-key` or `id`, else by position). It's also
+`window.unscriptedMorph`, which `@unscripted/ui` calls once per render.
+
 ## Not included
 
 Unscripted's own protections: its network gate, time limit, memory cap and replay. Here the

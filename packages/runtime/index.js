@@ -313,3 +313,91 @@ export async function runPage(wasmUrls) {
     for (const [source, url] of wanted) pack.run(source, url);
   }
 }
+
+/** Makes `root`'s children match `html`, changing only what differs: nodes that stay the same
+ * are kept, so focus, the caret, scroll positions and anything else on them survive. For
+ * @unscripted/ui, which calls it once per render as `window.unscriptedMorph` (one request, not
+ * one per node) and replaces innerHTML where a host has none.
+ *
+ * Children match by their `u-key` (or `id`) attribute, else by position and tag. A form
+ * control's live value and checked state are only changed when its attribute changes, so what
+ * someone typed is kept; @unscripted/ui sets bound controls' values itself. */
+export function morph(root, html) {
+  const template = document.createElement('template');
+  template.innerHTML = html;
+  morphChildren(root, template.content);
+}
+
+function keyOf(node) {
+  return node.nodeType === Node.ELEMENT_NODE ? (node.getAttribute('u-key') ?? node.id) || null : null;
+}
+
+function same(a, b) {
+  return a.nodeType === b.nodeType && a.nodeName === b.nodeName;
+}
+
+function morphChildren(from, to) {
+  const keyed = new Map();
+  for (const child of from.childNodes) {
+    const key = keyOf(child);
+    if (key !== null) keyed.set(key, child);
+  }
+  let cursor = from.firstChild;
+  for (const next of [...to.childNodes]) {
+    const key = keyOf(next);
+    let match = null;
+    if (key !== null) {
+      const found = keyed.get(key);
+      if (found && same(found, next)) match = found;
+      keyed.delete(key);
+    } else {
+      // The first unkeyed node of the same kind from here on.
+      for (let n = cursor; n; n = n.nextSibling) {
+        if (keyOf(n) === null && same(n, next)) {
+          match = n;
+          break;
+        }
+      }
+    }
+    if (match) {
+      if (match !== cursor) from.insertBefore(match, cursor);
+      morphNode(match, next);
+      cursor = match.nextSibling;
+    } else {
+      from.insertBefore(next, cursor);
+    }
+  }
+  // What's left after the last match wasn't in the new HTML.
+  while (cursor) {
+    const gone = cursor;
+    cursor = cursor.nextSibling;
+    gone.remove();
+  }
+}
+
+function morphNode(from, to) {
+  if (from.nodeType !== Node.ELEMENT_NODE) {
+    if (from.nodeValue !== to.nodeValue) from.nodeValue = to.nodeValue;
+    return;
+  }
+  for (const { name } of [...from.attributes]) {
+    if (!to.hasAttribute(name)) {
+      from.removeAttribute(name);
+      if (name === 'checked') from.checked = false;
+    }
+  }
+  for (const { name, value } of to.attributes) {
+    if (from.getAttribute(name) === value) continue;
+    from.setAttribute(name, value);
+    if (name === 'value') from.value = value;
+    if (name === 'checked') from.checked = true;
+  }
+  if (from.nodeName === 'TEXTAREA') {
+    if (from.defaultValue !== to.defaultValue) from.value = from.defaultValue = to.defaultValue;
+    return;
+  }
+  morphChildren(from, to);
+}
+
+// Where @unscripted/ui looks for it.
+globalThis.unscriptedMorph = morph;

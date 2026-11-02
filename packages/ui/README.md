@@ -95,9 +95,131 @@ Here `<?= ?>` doesn't escape: use `<?= e($value) ?>` for anything a user typed.
 | `u-on:click="save"` | Calls `$this->save()` on click. Any event type works: `u-on:keydown`, `u-on:submit`... |
 | `u-on:click="remove(3)"` | With arguments, written as JSON literals: `show("done")`, `move(1, -1)` |
 | `u-on:submit.prevent="add"` | Calls `$event->preventDefault()` first |
-| `u-model="draft"` | Two-way: the input shows `$this->draft`, and typing writes it back. Checkboxes bind to bools, radios to their value |
+| `u-on:...` modifiers | `.stop`, `.self` (only from the element itself), `.once`, `.window` (anywhere on the page), `.outside` (a click outside the element), keys (`.enter`, `.escape`, `.space`, `.tab`, `.up`/`.down`/`.left`/`.right`, `.delete`, `.backspace`, or one character: `.k`), and `.ctrl`/`.shift`/`.alt`/`.meta`. Combine them: `u-on:keydown.ctrl.k`. An element can have several for one event |
+| `u-model="draft"` | Two-way: the input shows `$this->draft`, and typing writes it back. Checkboxes bind to bools, radios to their value, `<select multiple>` to a list. Checkboxes, radios and selects update on change |
 | `u-model="todos.3.done"` | A path into an array property |
+| `u-model.blur` | Writes on change (leaving the field), not on each keystroke |
+| `u-model.debounce.300ms` | Writes once typing has paused that long (250 ms without a number) |
+| `u-model.number`, `.boolean` | Writes a number (`"4.5"` → `4.5`), or a bool (`"true"`, `"1"`, `"on"`, `"yes"`) |
+| `u-model` on `<input type="file">` | Uploads the file as it's chosen (with unscripted/ui-server): see Uploads |
 | `u-key="{{ $todo['id'] }}"` | Which item this is, so a re-render keeps each item's element when items are added, removed or reordered (an `id` attribute works too) |
+| `u-loading="add"` | Shown only while `add` (an action or loader) waits on the server; with no value, while anything does. `u-loading.remove` hides instead |
+| `u-offline` | Shown only while the browser is offline |
+| `u-poll.5s="refreshStats"` | Calls the action every 5 s (`.500ms`, default 2 s) while the element is on the page |
+| `u-init="load"` | Calls the action once, just after the element first appears |
+| `u-confirm="Delete it?"` | With a `u-on` on the same element: asks first, and does nothing if the answer is no |
+| `u-ignore` | Re-renders leave the element alone, children and attributes (for what other code manages, such as a chart) |
+| `u-navigate` | On a link: goes to the page without reloading PHP (see Navigation) |
+| `u-persist="player"` | Kept as it is across `u-navigate` page changes, where the next page has the same id |
+
+## Component features
+
+```php
+use Unscripted\Ui\{Component, Computed, On, State, Url};
+
+new class extends Component {
+    #[State, Url(as: 'q')] public string $query = '';      // kept in ?q=...
+    #[State] public array $items = [];
+
+    #[Computed] public function count(): int { return count($this->items); }  // $this->count
+
+    protected function mounted(): void {}                     // on the page, after its first render
+    protected function unmounted(): void {}                   // taken off (a child its parent dropped)
+    protected function rendering(): void {}                   // before each render
+    protected function rendered(): void {}                    // after, once the DOM shows it
+    protected function updatingQuery(string $value): void {}  // before u-model writes $query
+    protected function updatedQuery(string $value): void {}   // after
+    protected function updated(string $path, mixed $value): void {}   // after any u-model write
+    protected function failed(ServerError $e): void {}        // a call failed and nothing caught it
+
+    #[On('saved')] public function reload(?array $detail): void {}    // another component's dispatch
+    public function save(): void { $this->dispatch('saved', ['id' => 3]); $this->redirect('/done'); }
+};
+```
+
+- **`#[Computed]`** runs once per render, then keeps its result for the rest of it.
+- **`#[Url]`** reads the property from the query string on mount (and on the server, with
+  unscripted/ui-server), and writes it back with `history.replaceState`. It's left out while
+  it has its default value.
+- **Hooks** must be protected or public: Component calls them, and can't see private ones.
+  The default `failed()` throws the error, to the console.
+- **Events:** `dispatch('saved', $detail)` is a `CustomEvent` on window, so `#[On('saved')]`
+  methods in any component on the page hear it, and so can JavaScript
+  (`window.addEventListener('saved', e => e.detail)`). JavaScript can send one too:
+  `window.dispatchEvent(new CustomEvent('saved', {detail: {...}}))`. And it can call an action:
+  `root.dispatchEvent(new CustomEvent('unscripted:call', {detail: {action: 'save', args: []}}))`.
+- **`promise()`:** the host's promises can't chain from PHP (a callback's return value is
+  dropped), so wrap one: `promise(U::fetch($url))->then(fn($r) => $r->json())->then(fn($data) => ...)`.
+
+## Validation
+
+Rules go on the `#[Server]` method's parameters, where the server enforces them (see Server
+methods): `#[Validate('required|max:100', as: 'draft')] string $title`. `as` keys the errors by
+the u-model path the argument comes from, so editing that field updates its error at once: the
+browser checks the rules it knows (required, string length and number sizes with min, max and
+between, numeric, integer, email, url, in, boolean), with Laravel's messages. Others (unique,
+exists, date...) are left to the server. `$this->validate()` checks every such field before a
+call (`if (!$this->validate()) return;`).
+
+A form is an array property and an array argument with rules by field:
+
+```php
+#[State] public array $form = ['title' => '', 'email' => ''];
+
+#[Server]
+public static function save(#[Validate(['title' => 'required', 'email' => 'email'], as: 'form')] array $form): void {}
+```
+
+```blade
+<input u-model="form.title"> @error('form.title') {{ $message }} @enderror
+```
+
+## Child components
+
+```blade
+@foreach ($todos as $todo)
+    @child('todo-item', ['todo' => $todo], $todo['id'])
+@endforeach
+```
+
+`todo-item.blade.php` is a component of its own, fetched from beside this one's file. Its
+public properties are set from the props, and again whenever they change; the rest of its state
+is its own, and survives the parent's re-renders. The key tells children in a list apart. A
+child its parent stops rendering is unmounted. With unscripted/ui-server, children are rendered
+with their parent on the server. A child talks to its parent with `dispatch()` and `#[On]`.
+
+Partials (Blade with no state) work through unscripted/ui-server: `@include('row', [...])` and
+`<x-row :todo="$todo">slot</x-row>`, with `@props(['tone' => 'grey'])` for defaults.
+
+## Streaming, uploads and navigation (with unscripted/ui-server)
+
+**Streaming:** a `#[Server]` method that's a generator streams what it yields:
+`$this->text = ''; $result = yield static::story($topic)->into('text');` appends each chunk to
+`$text` as it arrives over HTTP, rendering each time, then gets the method's return value (or
+the whole text). Over the Reverb socket, or in tests, the text comes all at once.
+
+**Uploads:** `<input type="file" u-model="photo">` uploads the file as it's chosen. While it
+goes, `$this->progress('photo')` is the percent done (and `loading('photo')` is true); then
+`$photo` is `['id' => ..., 'name' => ..., 'size' => ..., 'type' => ..., 'url' => ...]` (a list
+for `multiple`), `url` showing it to this visitor only. A server method takes it:
+
+```php
+#[Server] public static function save(array $photo): string
+{
+    return Upload::find($photo)?->store('avatars') ?? abort(422, 'Upload it again');
+}
+```
+
+**Navigation:** `<a u-navigate href="/next">` fetches the page and swaps its body in, without
+loading PHP again (the 5 MB pack stays). The head's styles and the title follow; components are
+unmounted and the new page's mounted; back and forward work. `u-persist="id"` keeps an element
+(an audio player, say), with any component in it, where the next page has the same id.
+
+**Pagination** is a loader that watches a page number:
+`#[Server, Watch(['query', 'page'])] public static function rows(string $query, int $page): array`,
+returning `Todo::paginate(20, page: $page)->toArray()`. Buttons that change `$page` (an action
+such as `next()`, or `u-model.number="page"`) load that page; `#[Url]` on `$page` keeps it in
+the address.
 
 ## Server methods
 
@@ -108,13 +230,12 @@ and get only their arguments, never the component's state, which the user contro
 ```blade
 <?php
 use App\Models\Todo;
-use Unscripted\Ui\{Component, Server, ServerError, State, Watch};
+use Unscripted\Ui\{Component, Server, State, Validate, Watch};
 
 new class extends Component {
     #[State] public string $query = '';
     #[State] public string $draft = '';
     #[State] public array $todos = [];
-    public ?string $error = null;
 
     // A loader: runs on mount and whenever $query changes, filling $todos.
     #[Server, Watch('query')]
@@ -123,11 +244,11 @@ new class extends Component {
         return Todo::where('title', 'like', "%$query%")->get(['id', 'title', 'done'])->toArray();
     }
 
+    // The server checks the argument before the method runs.
     #[Server]
-    public static function create(string $title): array
+    public static function create(#[Validate('required|max:100')] string $title): array
     {
-        $valid = validator(['title' => $title], ['title' => 'required'])->validate();
-        return Todo::create($valid)->only('id', 'title', 'done');
+        return Todo::create(['title' => $title])->only('id', 'title', 'done');
     }
 
     #[Server]
@@ -137,14 +258,11 @@ new class extends Component {
     }
 
     // An action that waits for the server: `yield` is its `await`.
+    // If create() fails validation, the action stops there and @error shows why.
     public function add(): Generator
     {
-        try {
-            yield static::create($this->draft);
-            $this->draft = '';
-        } catch (ServerError $e) {
-            $this->error = $e->errors['title'][0] ?? $e->getMessage();
-        }
+        yield static::create($this->draft);
+        $this->draft = '';
     }
 };
 ?>
@@ -152,7 +270,7 @@ new class extends Component {
 <form u-on:submit.prevent="add">
     <input u-model="draft"> <button @disabled($this->loading('add'))>Add</button>
 </form>
-@if ($error) <p>{{ $error }}</p> @endif
+@error('title') <p>{{ $message }}</p> @enderror
 <input type="search" u-model="query">
 @foreach ($todos as $todo)
     <p u-key="{{ $todo['id'] }}">{{ $todo['title'] }}
@@ -170,7 +288,10 @@ The page needs Laravel's `<meta name="csrf-token" content="{{ csrf_token() }}">`
 | `u-on:click="remove(3)"` | A `#[Server]` method straight from the page; what it returns isn't kept |
 | `$rows = yield static::search($q);` | In an action that returns `Generator`: waits for the call. `yield [static::a(), static::b()]` makes both in one request, getting both results |
 | `#[Server(can: 'remove-todo')]` | The server checks the Laravel ability first (`Gate::authorize`), passing it the call's arguments: `Gate::define('remove-todo', fn(?User $user, int $id) => ...)`. Denied is a 403 |
-| `catch (ServerError $e)` | A failed call, thrown into the action at its `yield`: `getMessage()`, `$e->status`, and `$e->errors` for a validation failure's messages by field |
+| `#[Validate('required\|max:100')]` | On a `#[Server]` method's parameter: Laravel validation rules the server checks before the method runs (after `can`), keyed by the parameter's name. A missing argument is checked with its default; a variadic one's rules apply to each value |
+| `@error('title') {{ $message }} @enderror` | Shows a field's first message from the error bag. A failed validation (a 422) fills it, replacing what was there; an action's next successful call empties it. `$errors` in a template and `$this->errors()` in the component are the bag: `has()`, `first()`, `get()`, `all()`, `any()`, `add()`, `clear()` |
+| `catch (ServerError $e)` | A failed call, thrown into the action at its `yield`: `getMessage()`, `$e->status`, and `$e->errors` for a validation failure's messages by field. An action needn't catch a validation failure: if it doesn't, the action stops there and the error bag shows it. A loader's isn't put in the bag |
+| `#[Server, Watch, Live('todos')]` | Runs the loader again on every page that has it when the server calls `Live::changed('todos')` (ui-server). Needs ui-server's `reverb` transport. `#[Watch]` with no properties loads once on mount |
 | `$this->loading('add')` | Whether that action or loader is waiting on the server; `$this->loading()` for any |
 
 After an action's server calls are done (a direct call's too), every loader runs again, so what
@@ -181,12 +302,21 @@ asked.
 
 **Every public `#[Server]` method is a public HTTP endpoint**, whatever the template does with
 it: anyone can call it with any arguments. Check authorisation, with `can:` or in the method,
-and validate arguments in the method. Return arrays and scalars, picking the columns
+and validate arguments, with `#[Validate]` or in the method. Return arrays and scalars, picking the columns
 (`->get(['id', 'title'])`, `->only(...)`), so nothing the browser shouldn't see goes with it.
 `private` and `protected` `#[Server]` methods are server-only helpers, sent to the browser not
 even as stubs. The file's other code is sent as written: `use` lines name your classes.
 
 ## Rules
+
+- **Children are separate:** a component's handlers stop at its children's roots, so a
+  child's buttons call the child's actions.
+- **The browser's PHP is 32-bit:** an `int` stops at 2,147,483,647 there, while the server's
+  goes much higher. A larger number from JSON arrives as a `float`, and `(int)` of one wraps
+  around. Keep timestamps in milliseconds as floats (`microtime(true) * 1000`), and watch for
+  ids or counts that could pass two billion.
+- **`mounted()`:** override the protected method to run code once the component is on the
+  page, after its first render, such as starting a timer (`U::setInterval(fn() => $this->refresh(), 250)`).
 
 - **Escape what you print.** Blade's `{{ }}` does; `{!! !!}` and `<?= ?>` don't.
 - **Actions** are the component's own public, non-static methods. `u-on` can't call
@@ -206,6 +336,10 @@ element.
 
 On a host without `morph` (Unscripted's browser, for now), each render replaces the root's HTML
 instead, keeping only a bound input's focus and caret.
+
+Served by `unscripted/ui-server`, a component can be rendered on the server first
+(`@unscripted('name')`): the page arrives with its HTML, and `mount()` picks up from the state
+it was rendered with, patching that HTML rather than loading again. See ui-server's README.
 
 ## License
 

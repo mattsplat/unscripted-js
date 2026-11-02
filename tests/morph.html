@@ -1,0 +1,78 @@
+<!doctype html>
+<!-- The runtime's morph, tested in a real browser (Node has no DOM): `npm run serve`, then open
+     http://localhost:8000/tests/morph.html. The page's title ends "passed" or "FAILED". -->
+<meta charset="utf-8">
+<title>morph tests</title>
+<pre id="out"></pre>
+<div id="root"></div>
+<script type="module">
+import { morph } from '../packages/runtime/index.js';
+
+const root = document.getElementById('root');
+const out = document.getElementById('out');
+let failed = 0;
+const check = (label, got, want) => {
+  const ok = JSON.stringify(got) === JSON.stringify(want);
+  if (!ok) failed++;
+  out.textContent += `${ok ? 'ok  ' : 'FAIL'} ${label}${ok ? '' : `\n     got:  ${JSON.stringify(got)}\n     want: ${JSON.stringify(want)}`}\n`;
+};
+
+// Keyed items keep their nodes when reordered.
+root.innerHTML = '<ul><li u-key="a">A</li><li u-key="b">B</li><li u-key="c">C</li></ul>';
+const [a, b, c] = root.querySelectorAll('li');
+morph(root, '<ul><li u-key="c">C</li><li u-key="a">A!</li><li u-key="b">B</li></ul>');
+const after = [...root.querySelectorAll('li')];
+check('keyed: same nodes, new order', [after[0] === c, after[1] === a, after[2] === b], [true, true, true]);
+check('keyed: text updated', after.map((li) => li.textContent), ['C', 'A!', 'B']);
+
+// Removed and added items.
+morph(root, '<ul><li u-key="a">A!</li><li u-key="d">D</li></ul>');
+check('keyed: removed and added', [...root.querySelectorAll('li')].map((li) => li.textContent), ['A!', 'D']);
+check('keyed: the kept one is the same node', root.querySelector('li') === a, true);
+
+// Attributes.
+root.innerHTML = '<p class="x" title="t">hi</p>';
+const p = root.querySelector('p');
+morph(root, '<p class="y">hi</p>');
+check('attributes: changed and removed', [p === root.querySelector('p'), p.className, p.hasAttribute('title')], [true, 'y', false]);
+
+// A typed value stays when the HTML's value attribute doesn't change.
+root.innerHTML = '<input value="a">';
+const input = root.querySelector('input');
+input.value = 'typed';
+morph(root, '<input value="a">');
+check('input: what was typed stays', input.value, 'typed');
+morph(root, '<input value="b">');
+check('input: a new value attribute wins', input.value, 'b');
+
+// Checkboxes follow the checked attribute when it changes.
+root.innerHTML = '<input type="checkbox">';
+const box = root.querySelector('input');
+morph(root, '<input type="checkbox" checked>');
+check('checkbox: checked added', box.checked, true);
+morph(root, '<input type="checkbox">');
+check('checkbox: checked removed', box.checked, false);
+
+// Textareas.
+root.innerHTML = '<textarea>one</textarea>';
+const area = root.querySelector('textarea');
+morph(root, '<textarea>two</textarea>');
+check('textarea', [area === root.querySelector('textarea'), area.value], [true, 'two']);
+
+// u-ignore: left alone.
+root.innerHTML = '<div u-ignore><canvas></canvas></div><p>1</p>';
+const canvas = root.querySelector('canvas');
+canvas.dataset.drawn = 'yes';
+morph(root, '<div u-ignore class="new"></div><p>2</p>');
+check('u-ignore: children and attributes kept', [root.querySelector('canvas') === canvas, root.querySelector('div').className], [true, '']);
+check('u-ignore: the rest still patched', root.querySelector('p').textContent, '2');
+
+// Unkeyed: matched by position and tag.
+root.innerHTML = '<p>1</p><span>2</span>';
+const span = root.querySelector('span');
+morph(root, '<span>3</span>');
+check('unkeyed: matched by tag', [root.querySelector('span') === span, root.innerHTML], [true, '<span>3</span>']);
+
+out.textContent += failed ? `\n${failed} FAILED\n` : '\nall passed\n';
+document.title = `morph tests: ${failed ? 'FAILED' : 'passed'}`;
+</script>

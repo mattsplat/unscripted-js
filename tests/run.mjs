@@ -20,12 +20,19 @@ if (!existsSync(wasm)) {
   process.exit(1);
 }
 
+// unscripted/ui-server renders with its own copy of ui.php: it must be this one.
+if (readFileSync(`${root}packages/ui/ui.php`, 'utf8') !== readFileSync(`${root}packages/ui-server/src/ui.php`, 'utf8')) {
+  console.error('packages/ui-server/src/ui.php differs from packages/ui/ui.php: npm run sync-ui');
+  process.exit(1);
+}
+
 // The pack's stderr is only PHP's memory manager talking (munmap notices): not test output.
 console.debug = () => {};
 
 // What ui.php reaches for when it loads: a document with no Blade scripts on it.
 globalThis.window = globalThis;
-globalThis.document = { querySelectorAll: () => [] };
+globalThis.document = { querySelectorAll: () => [], addEventListener() {} };
+globalThis.addEventListener ??= () => {}; // u-navigate listens for back/forward
 const { Pack } = await import('../packages/runtime/index.js');
 
 let failed = false;

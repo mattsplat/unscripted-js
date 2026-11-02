@@ -85,7 +85,7 @@ fails('a template syntax error', fn() => blade("<?php\nuse Unscripted\\Ui\\Compo
     'in tpl.blade.php:6 (in the template)');
 fails('an error while rendering', function () {
     $component = blade("<?php\nuse Unscripted\\Ui\\Component;\nnew class extends Component {};\n?>\n<p>\n{{ intdiv(1, 0) }}</p>", 'run.blade.php');
-    (fn() => $this->refresh())->call($component);
+    Closure::bind(fn() => $this->html(), $component, Unscripted\Ui\Component::class)();
 }, 'Division by zero in run.blade.php:6');
 
 done();

@@ -8,6 +8,7 @@
   "scripts": {
     "pack": "mkdir -p dist && npm pack --workspaces --pack-destination dist",
     "serve": "node scripts/serve.js",
-    "test": "node tests/run.mjs"
+    "test": "node tests/run.mjs",
+    "sync-ui": "cp packages/ui/ui.php packages/ui-server/src/ui.php"
   }
 }

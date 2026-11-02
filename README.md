@@ -42,7 +42,11 @@ for it.
 **PHP versions.** Each PHP minor version is its own package, because PHP's minors differ
 (code written for 8.2 can behave differently on 8.4). Pick the line your code is written for:
 its patch releases bring that line's PHP security fixes, and `phpVersion` says the exact
-release. A line's package is deprecated when the PHP project stops supporting it. More languages (Python, Rust programs, a sandboxed JS) use the same runtime.
+release. A line's package is deprecated when the PHP project stops supporting it.
+
+**Rust** needs no pack: a Rust page's `<script type="application/rust" src="app.wasm">` is its
+own compiled program (built on Unscripted's `unscripted` crate), which the runtime starts.
+More languages (Python, a sandboxed JS) use the same runtime.
 
 ## How it works
 
@@ -83,6 +87,10 @@ The packs are built in the Unscripted repo. Packing copies them in from there:
 npm run pack       # copies each line's pack in and writes dist/*.tgz
 npm run serve      # serves this folder at http://localhost:8000/ (Node; any static server works)
 ```
+
+To try it from other devices on the same network (a phone, another laptop), serve to the
+network: `HOST=0.0.0.0 npm run serve` prints the address to open there. Anyone on that network
+can read the folder while it runs.
 
 Then open <http://localhost:8000/examples/php-snake/>: the PHP Snake game (a copy of
 Unscripted's `examples/php-snake`), running through the runtime.

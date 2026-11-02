@@ -154,8 +154,9 @@ export class Pack {
       case 'call': {
         const object = target();
         const args = message.args.map((a) => this.decode(a));
-        // The host has constructors as methods of window (`$window->WebSocket($url)`).
-        if (object === window && (message.name === 'WebSocket' || message.name === 'XMLHttpRequest')) {
+        // The host has constructors as methods of window (`$window->WebSocket($url)`,
+        // `$window->CustomEvent('saved', [...])`): a capitalised function there is made with new.
+        if (object === window && /^[A-Z]/.test(message.name) && typeof window[message.name] === 'function') {
           return this.encode(new window[message.name](...args));
         }
         const method = object[message.name];
@@ -339,7 +340,8 @@ export async function runPage(wasmUrls) {
  * @unscripted/ui, which calls it once per render as `window.unscriptedMorph` (one request, not
  * one per node) and replaces innerHTML where a host has none.
  *
- * Children match by their `u-key` (or `id`) attribute, else by position and tag. A form
+ * Children match by their `u-key` (or `id`) attribute, else by position and tag. An element with
+ * `u-ignore` is kept as it is. A form
  * control's live value and checked state are only changed when its attribute changes, so what
  * someone typed is kept; @unscripted/ui sets bound controls' values itself. */
 export function morph(root, html) {
@@ -400,6 +402,8 @@ function morphNode(from, to) {
     if (from.nodeValue !== to.nodeValue) from.nodeValue = to.nodeValue;
     return;
   }
+  // u-ignore: left as it is, children and all (for what other code manages, such as a chart).
+  if (from.hasAttribute('u-ignore')) return;
   for (const { name } of [...from.attributes]) {
     if (!to.hasAttribute(name)) {
       from.removeAttribute(name);

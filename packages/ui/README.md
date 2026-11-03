@@ -1,4 +1,4 @@
-# @unscripted/ui
+# @mtjncn/ui
 
 Reactive components for [Unscripted](https://github.com/mattsplat/unscripted) PHP. A component
 is a class: its `#[State]` properties are the data, its public methods are actions, and its
@@ -33,9 +33,9 @@ new class extends Component {
 ```html
 <div id="app"></div>
 <script type="text/blade" src="greeter.blade.php" data-mount="#app"></script>
-<script type="text/php" src="https://cdn.jsdelivr.net/npm/@unscripted/ui/ui.php"></script>
-<script src="https://cdn.jsdelivr.net/npm/@unscripted/runtime/auto.js"
-        data-php="https://cdn.jsdelivr.net/npm/@unscripted/php84/php_pack.wasm"></script>
+<script type="text/php" src="https://cdn.jsdelivr.net/npm/@mtjncn/ui@0.1/ui.php"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mtjncn/runtime@0.1/auto.js"
+        data-php="https://cdn.jsdelivr.net/npm/@mtjncn/php84@0.1/php_pack.wasm"></script>
 ```
 
 `ui.php` mounts each `<script type="text/blade">` on its `data-mount` element. The Blade can
@@ -291,7 +291,7 @@ The page needs Laravel's `<meta name="csrf-token" content="{{ csrf_token() }}">`
 | `#[Validate('required\|max:100')]` | On a `#[Server]` method's parameter: Laravel validation rules the server checks before the method runs (after `can`), keyed by the parameter's name. A missing argument is checked with its default; a variadic one's rules apply to each value |
 | `@error('title') {{ $message }} @enderror` | Shows a field's first message from the error bag. A failed validation (a 422) fills it, replacing what was there; an action's next successful call empties it. `$errors` in a template and `$this->errors()` in the component are the bag: `has()`, `first()`, `get()`, `all()`, `any()`, `add()`, `clear()` |
 | `catch (ServerError $e)` | A failed call, thrown into the action at its `yield`: `getMessage()`, `$e->status`, and `$e->errors` for a validation failure's messages by field. An action needn't catch a validation failure: if it doesn't, the action stops there and the error bag shows it. A loader's isn't put in the bag |
-| `#[Server, Watch, Live('todos')]` | Runs the loader again on every page that has it when the server calls `Live::changed('todos')` (ui-server). Needs ui-server's `reverb` transport. `#[Watch]` with no properties loads once on mount |
+| `#[Server, Watch, Live('todos')]` | Runs the loader again on every page that has it when the server calls `Live::changed('todos')` (ui-server). Pages hear over ui-server's `reverb` transport, or else ask every `poll` ms (5000 by default). `#[Watch]` with no properties loads once on mount |
 | `#[Live('game')]` on a browser method | Called with the data on every page when the server calls `Live::send('game', $data)` (ui-server), then renders. Needs the `reverb` transport |
 | `$this->loading('add')` | Whether that action or loader is waiting on the server; `$this->loading()` for any |
 
@@ -329,7 +329,7 @@ even as stubs. The file's other code is sent as written: `use` lines name your c
 
 ## How it renders
 
-Each render patches the DOM in place with `@unscripted/runtime`'s `morph`: elements that are
+Each render patches the DOM in place with `@mtjncn/runtime`'s `morph`: elements that are
 still there are kept and only what changed is updated, so focus, the caret, scroll positions and
 anything else on them survive. Give list items a `u-key` so they're matched by identity rather
 than position. Events are delegated: one listener per event type on the root, not one per

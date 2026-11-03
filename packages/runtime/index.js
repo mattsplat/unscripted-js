@@ -1,4 +1,4 @@
-// @unscripted/runtime: runs Unscripted's language packs in any browser (Firefox, Chrome, Safari).
+// @mtjncn/runtime: runs Unscripted's language packs in any browser (Firefox, Chrome, Safari).
 //
 // A pack is WebAssembly that reaches the page through one import, `host.request`, carrying JSON
 // (docs/packs.md, "DOM bindings"). In Unscripted the browser answers it; here this module does,
@@ -6,8 +6,8 @@
 // browser does (browser/src/interpreter.rs): a clock, random bytes, output to the console, and
 // no files, environment or sockets.
 //
-//   import { load } from '@unscripted/runtime';
-//   import { wasm } from '@unscripted/php84';
+//   import { load } from '@mtjncn/runtime';
+//   import { wasm } from '@mtjncn/php84';
 //   const php = await load('php', wasm);
 //   php.run('<?php U::document()->title;', 'inline.php');
 //
@@ -327,7 +327,7 @@ export async function runPage(wasmUrls) {
     const wanted = await scripts(type);
     if (wanted.length === 0) continue;
     if (!wasmUrls[name]) {
-      console.error(`@unscripted/runtime: this page has ${type} scripts but no ${name} pack to run them`);
+      console.error(`@mtjncn/runtime: this page has ${type} scripts but no ${name} pack to run them`);
       continue;
     }
     const pack = await load(name, wasmUrls[name]);
@@ -337,13 +337,13 @@ export async function runPage(wasmUrls) {
 
 /** Makes `root`'s children match `html`, changing only what differs: nodes that stay the same
  * are kept, so focus, the caret, scroll positions and anything else on them survive. For
- * @unscripted/ui, which calls it once per render as `window.unscriptedMorph` (one request, not
+ * @mtjncn/ui, which calls it once per render as `window.unscriptedMorph` (one request, not
  * one per node) and replaces innerHTML where a host has none.
  *
  * Children match by their `u-key` (or `id`) attribute, else by position and tag. An element with
  * `u-ignore` is kept as it is. A form
  * control's live value and checked state are only changed when its attribute changes, so what
- * someone typed is kept; @unscripted/ui sets bound controls' values itself. */
+ * someone typed is kept; @mtjncn/ui sets bound controls' values itself. */
 export function morph(root, html) {
   const template = document.createElement('template');
   template.innerHTML = html;
@@ -423,5 +423,5 @@ function morphNode(from, to) {
   morphChildren(from, to);
 }
 
-// Where @unscripted/ui looks for it.
+// Where @mtjncn/ui looks for it.
 globalThis.unscriptedMorph = morph;

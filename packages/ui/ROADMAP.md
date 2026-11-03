@@ -1,6 +1,6 @@
-# @unscripted/ui roadmap
+# @mtjncn/ui roadmap
 
-Where `@unscripted/ui` and `unscripted/ui-server` are, and what's left. Not shipped in the npm
+Where `@mtjncn/ui` and `unscripted/ui-server` are, and what's left. Not shipped in the npm
 package.
 
 ## Where things are

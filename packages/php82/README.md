@@ -1,7 +1,7 @@
-# @unscripted/php82
+# @mtjncn/php82
 
 PHP 8.2 compiled to WebAssembly as an [Unscripted](https://github.com/mattsplat/unscripted)
-language pack, for [`@unscripted/runtime`](../runtime). With it, a page's
+language pack, for [`@mtjncn/runtime`](../runtime). With it, a page's
 `<script type="text/php">` runs in any modern browser.
 
 ```php
@@ -19,19 +19,19 @@ Unscripted's [page API reference](https://github.com/mattsplat/unscripted/blob/m
 ## Use
 
 ```js
-import { load } from '@unscripted/runtime';
-import { wasm, phpVersion } from '@unscripted/php82';
+import { load } from '@mtjncn/runtime';
+import { wasm, phpVersion } from '@mtjncn/php82';
 
 const php = await load('php', wasm);
 php.run('<?php echo PHP_VERSION;', 'hello.php');   // echo goes to the console: 8.2.x
 ```
 
-Or with no build step, see [`@unscripted/runtime`](../runtime#no-build-step).
+Or with no build step, see [`@mtjncn/runtime`](../runtime#no-build-step).
 
 ## PHP versions
 
 One package per PHP minor version, since PHP's minors differ (8.2 and 8.4 behave differently):
-`@unscripted/php82`, `@unscripted/php84`. Pick the one your code is written for; its patch
+`@mtjncn/php82`, `@mtjncn/php84`. Pick the one your code is written for; its patch
 releases bring that line's PHP security fixes, and `phpVersion` says the exact release. This
 line is supported by the PHP project until December 2026; after that the package is deprecated.
 

@@ -1,4 +1,4 @@
-# @unscripted/runtime
+# @mtjncn/runtime
 
 Runs [Unscripted](https://github.com/mattsplat/unscripted) language packs in any browser, so a
 page written for Unscripted (PHP and Rust today; Python and sandboxed JS to come) works in
@@ -8,25 +8,25 @@ Firefox, Chrome and Safari too. It answers the pack's one import, `host.request`
 
 ```html
 <script type="text/php" src="main.php"></script>
-<script src="https://cdn.jsdelivr.net/npm/@unscripted/runtime/auto.js"
-        data-php="https://cdn.jsdelivr.net/npm/@unscripted/php84/php_pack.wasm"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mtjncn/runtime@0.1/auto.js"
+        data-php="https://cdn.jsdelivr.net/npm/@mtjncn/php84@0.1/php_pack.wasm"></script>
 ```
 
-Each `data-<pack>` attribute names that pack's `.wasm`: here PHP 8.4. Use `@unscripted/php82` for PHP 8.2.
+Each `data-<pack>` attribute names that pack's `.wasm`: here PHP 8.4. Use `@mtjncn/php82` for PHP 8.2.
 
 A Rust page needs no pack: its program is the script's `src`, built with Unscripted's
 `packs/rust/build.sh` on the `unscripted` crate, and started once (`rust_main`):
 
 ```html
 <script type="application/rust" src="app.wasm"></script>
-<script src="https://cdn.jsdelivr.net/npm/@unscripted/runtime/auto.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mtjncn/runtime@0.1/auto.js"></script>
 ``` Pages must be served over http(s).
 
 ## As a module
 
 ```js
-import { load } from '@unscripted/runtime';
-import { wasm } from '@unscripted/php84';
+import { load } from '@mtjncn/runtime';
+import { wasm } from '@mtjncn/php84';
 
 const php = await load('php', wasm);
 php.run(`<?php
@@ -42,7 +42,7 @@ tags in order.
 
 `morph(root, html)` makes `root`'s children match `html`, keeping the elements that stay and
 changing only what differs (matched by `u-key` or `id`, else by position). It's also
-`window.unscriptedMorph`, which `@unscripted/ui` calls once per render.
+`window.unscriptedMorph`, which `@mtjncn/ui` calls once per render.
 
 ## Not included
 

@@ -20,8 +20,8 @@ U::document()->querySelector('#add')->addEventListener('click', function () use 
 });
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/@unscripted/runtime/auto.js"
-        data-php="https://cdn.jsdelivr.net/npm/@unscripted/php84/php_pack.wasm"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mtjncn/runtime@0.1/auto.js"
+        data-php="https://cdn.jsdelivr.net/npm/@mtjncn/php84@0.1/php_pack.wasm"></script>
 ```
 
 > **Status: experiment, not yet published to npm.** The package names are placeholders.
@@ -30,11 +30,11 @@ U::document()->querySelector('#add')->addEventListener('click', function () use 
 
 | Package | What it is | Size |
 |---|---|---|
-| [`@unscripted/runtime`](packages/runtime) | The runtime: answers a pack's requests against the real DOM. `auto.js` for a plain `<script>` tag, `index.js` as a module. | ~12 KB |
-| [`@unscripted/php84`](packages/php84) | PHP 8.4 as a language pack | 4.7 MB (~1.5 MB compressed) |
-| [`@unscripted/php82`](packages/php82) | PHP 8.2 as a language pack | 4.5 MB (~1.5 MB compressed) |
-| [`@unscripted/ui`](packages/ui) | Reactive components for PHP 8.4, in single Blade files: `ui.php`, loaded as a page script | ~29 KB |
-| [`unscripted/ui-server`](packages/ui-server) (Composer) | The server side of `@unscripted/ui`, for Laravel: `#[Server]` methods that run on the server, called from components | |
+| [`@mtjncn/runtime`](packages/runtime) | The runtime: answers a pack's requests against the real DOM. `auto.js` for a plain `<script>` tag, `index.js` as a module. | ~12 KB |
+| [`@mtjncn/php84`](packages/php84) | PHP 8.4 as a language pack | 4.7 MB (~1.5 MB compressed) |
+| [`@mtjncn/php82`](packages/php82) | PHP 8.2 as a language pack | 4.5 MB (~1.5 MB compressed) |
+| [`@mtjncn/ui`](packages/ui) | Reactive components for PHP 8.4, in single Blade files: `ui.php`, loaded as a page script | ~29 KB |
+| [`unscripted/ui-server`](packages/ui-server) (Composer) | The server side of `@mtjncn/ui`, for Laravel: `#[Server]` methods that run on the server, called from components | |
 
 A page only downloads the packs it uses: the runtime loads a pack when the page has scripts
 for it.
@@ -56,7 +56,7 @@ reaches the page through a single import, `host.request`, carrying JSON:
 are a few WASI functions (clock, random bytes, output), and it has no files, network or
 environment.
 
-In Unscripted, the browser answers those requests. Here `@unscripted/runtime` does, against the
+In Unscripted, the browser answers those requests. Here `@mtjncn/runtime` does, against the
 browser's real DOM: it keeps a table of page objects by number, carries out each
 `get`/`set`/`call`, and turns callbacks into functions that call back into the pack. The
 protocol is described in Unscripted's
@@ -102,6 +102,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for more, and [CHANGELOG.md](CHANGELOG.md
 The runtime and Unscripted's bridge code are licensed under either of
 [Apache License, Version 2.0](LICENSE-APACHE) or [MIT license](LICENSE-MIT), at your option.
 
-`@unscripted/php84` and `@unscripted/php82` also contain PHP, under the PHP License 3.01. This product includes PHP
+`@mtjncn/php84` and `@mtjncn/php82` also contain PHP, under the PHP License 3.01. This product includes PHP
 software, freely available from <http://www.php.net/software/>. See
 [packages/php84/NOTICE](packages/php84/NOTICE).

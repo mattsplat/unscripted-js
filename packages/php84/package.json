@@ -1,7 +1,7 @@
 {
-  "name": "@unscripted/php84",
+  "name": "@mtjncn/php84",
   "version": "0.1.0",
-  "description": "PHP 8.4 as an Unscripted language pack: php-src's embed SAPI compiled to WebAssembly, for @unscripted/runtime.",
+  "description": "PHP 8.4 as an Unscripted language pack: php-src's embed SAPI compiled to WebAssembly, for @mtjncn/runtime.",
   "type": "module",
   "exports": {
     ".": "./index.js",
@@ -21,7 +21,7 @@
     "prepack": "node ../../scripts/copy-php.js 8.4"
   },
   "peerDependencies": {
-    "@unscripted/runtime": "^0.1.0"
+    "@mtjncn/runtime": "^0.1.0"
   },
   "license": "PHP-3.01 AND (MIT OR Apache-2.0)",
   "repository": {
@@ -40,5 +40,8 @@
   "homepage": "https://github.com/mattsplat/unscripted-js#readme",
   "bugs": {
     "url": "https://github.com/mattsplat/unscripted-js/issues"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

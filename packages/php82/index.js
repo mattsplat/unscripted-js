@@ -1,10 +1,10 @@
-// @unscripted/php82: PHP 8.2 (php-src's embed SAPI, built for WebAssembly) as an Unscripted
-// language pack, for @unscripted/runtime. One package per PHP minor version: code written for
+// @mtjncn/php82: PHP 8.2 (php-src's embed SAPI, built for WebAssembly) as an Unscripted
+// language pack, for @mtjncn/runtime. One package per PHP minor version: code written for
 // one line can behave differently on another, so a page pins its line and gets that line's
 // patch releases.
 //
-//   import { load } from '@unscripted/runtime';
-//   import { wasm, phpVersion } from '@unscripted/php82';
+//   import { load } from '@mtjncn/runtime';
+//   import { wasm, phpVersion } from '@mtjncn/php82';
 //   const php = await load('php', wasm);
 
 /** Where the pack's .wasm is, for `load('php', wasm)`. */

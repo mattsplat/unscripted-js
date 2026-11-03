@@ -4,14 +4,17 @@
 
 ### Added
 
+- Published to npm under the `@mtjncn` scope: `@mtjncn/runtime`, `@mtjncn/ui` and
+  `@mtjncn/php84` (they were `@unscripted/...`, never published). `@mtjncn/php82` isn't published.
+
 - ui-server `Live::send('key', $data)`: sends data itself to every page's `#[Live('key')]`
   browser method, for changes too frequent to refetch.
 
-- `@unscripted/runtime` 0.1.0: runs language packs against the real DOM. `load(name, wasmUrl)`
+- `@mtjncn/runtime` 0.1.0: runs language packs against the real DOM. `load(name, wasmUrl)`
   and `runPage({name: wasmUrl})` as a module; `auto.js` as a drop-in script configured with
   `data-<pack>` attributes. Speaks host API 2 (`packs/HOST_API` in Unscripted) and refuses
   packs built for another.
-- `@unscripted/php84` 0.1.0 (PHP 8.4.27) and `@unscripted/php82` 0.1.0 (PHP 8.2.35): one package
+- `@mtjncn/php84` 0.1.0 (PHP 8.4.27) and `@mtjncn/php82` 0.1.0 (PHP 8.2.35): one package
   per PHP minor version, each with PHP's license and notice and a `phpVersion` export.
 - `npm run serve`: a dependency-free static server for the examples.
 - Rust programs: the runtime runs a page's `<script type="application/rust" src="app.wasm">`,
@@ -19,7 +22,7 @@
 - `examples/php-snake`: the PHP Snake game running through the runtime.
 - The runtime's `morph(root, html)`, also `window.unscriptedMorph`: patches a subtree to match
   new HTML in one request, keeping the elements that stay.
-- `@unscripted/ui` 0.1.0: reactive components for PHP 8.4. `#[State]` properties, public methods
+- `@mtjncn/ui` 0.1.0: reactive components for PHP 8.4. `#[State]` properties, public methods
   as actions (`u-on:<event>`, with JSON arguments and `.prevent`), two-way `u-model` (paths into
   arrays too), rendering after every action by patching the DOM in place (`u-key` matches list
   items), so focus, the caret and scroll positions survive; replacing innerHTML where the host
@@ -27,7 +30,7 @@
   class in a PHP block, the template under it), compiled in the browser from a Blade subset,
   with errors naming the file and line; or classes with a `render()` in PHP's own template
   syntax. `examples/ui-todo` (Blade) and `examples/ui-counter` (PHP templates) use it.
-- `@unscripted/ui` server calls: `#[Server]` static methods run on the server, called from a
+- `@mtjncn/ui` server calls: `#[Server]` static methods run on the server, called from a
   generator action (`$rows = yield static::search($q);`, several at once with
   `yield [...]`), straight from the page (`u-on:click="remove(3)"`), or as `#[Watch]` loaders
   that refill a property when the properties they watch change (`debounce: ms` to wait for a
@@ -53,7 +56,7 @@
 - Live updates: `#[Live('key')]` on a loader reruns it on every page when the server calls
   `Live::changed('key')` (ui-server, over the 'reverb' transport's socket). `#[Watch]` with no
   properties, and a `mounted()` hook.
-- `@unscripted/ui` features: u-on modifiers (`.stop`, `.self`, `.once`, `.window`, `.outside`,
+- `@mtjncn/ui` features: u-on modifiers (`.stop`, `.self`, `.once`, `.window`, `.outside`,
   keys, `.ctrl`...), u-model modifiers (`.blur`, `.debounce`, `.number`, `.boolean`) and
   `<select>`; `u-loading`, `u-offline`, `u-poll`, `u-init`, `u-confirm`, `u-ignore`; lifecycle
   hooks (`mounted`, `unmounted`, `rendering`/`rendered`, `updating`/`updated`, `failed`);

@@ -1,5 +1,5 @@
 {
-  "name": "@unscripted/runtime",
+  "name": "@mtjncn/runtime",
   "version": "0.1.0",
   "description": "Run Unscripted language packs (PHP in WebAssembly, more to come) in any browser, against the real DOM.",
   "type": "module",
@@ -34,5 +34,8 @@
   "homepage": "https://github.com/mattsplat/unscripted-js#readme",
   "bugs": {
     "url": "https://github.com/mattsplat/unscripted-js/issues"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

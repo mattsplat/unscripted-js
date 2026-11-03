@@ -1,5 +1,5 @@
 {
-  "name": "@unscripted/ui",
+  "name": "@mtjncn/ui",
   "version": "0.1.0",
   "description": "Reactive components for Unscripted PHP: state, actions and two-way binding, rendered from PHP templates.",
   "exports": {
@@ -29,5 +29,8 @@
   "homepage": "https://github.com/mattsplat/unscripted-js#readme",
   "bugs": {
     "url": "https://github.com/mattsplat/unscripted-js/issues"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

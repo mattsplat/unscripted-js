@@ -15,7 +15,7 @@ package.
 | `tests/` | `npm test` (Node 24+, `nvm use 26`): PHP tests run in the pack. `tests/morph.html`: the morph, in a browser (`npm run serve`) |
 | `packages/ui-server/tests/` | `composer test` there: stripping, calls, rendering, partials, the test helper, no Laravel |
 | `examples/ui-todo`, `examples/ui-counter` | Static examples (`npm run serve`) |
-| `../unscripted-laravel-demo` | Laravel 13 demo (outside this repo, not in git). `php artisan serve --port=8010` and `php artisan reverb:start` (port 8081); `/` todos, `/spread` and `/voxel` the games, `/features` and `/counters` exercise the features; `php artisan test` runs `tests/Feature/TodosComponentTest.php`; `php artisan migrate:fresh --seed` resets the data. Needs this checkout beside it |
+| `../unscripted-laravel-demo` | Laravel 13 demo (outside this repo; its own private repo, `mattsplat/unscripted-laravel-demo`). It installs ui-server from `mattsplat/unscripted-ui-server`: `npm run split-ui-server` here, then `composer update unscripted/ui-server` there, to pick up changes. `php artisan serve --port=8010` and `php artisan reverb:start` (port 8081); `/` todos, `/spread` and `/voxel` the games, `/features` and `/counters` exercise the features; `php artisan test` runs `tests/Feature/TodosComponentTest.php`; `php artisan migrate:fresh --seed` resets the data. Needs this checkout beside it |
 
 Work is on the `ui-framework` branch.
 

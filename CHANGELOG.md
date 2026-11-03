@@ -4,6 +4,9 @@
 
 ### Added
 
+- ui-server `Live::send('key', $data)`: sends data itself to every page's `#[Live('key')]`
+  browser method, for changes too frequent to refetch.
+
 - `@unscripted/runtime` 0.1.0: runs language packs against the real DOM. `load(name, wasmUrl)`
   and `runPage({name: wasmUrl})` as a module; `auto.js` as a drop-in script configured with
   `data-<pack>` attributes. Speaks host API 2 (`packs/HOST_API` in Unscripted) and refuses

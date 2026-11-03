@@ -292,6 +292,7 @@ The page needs Laravel's `<meta name="csrf-token" content="{{ csrf_token() }}">`
 | `@error('title') {{ $message }} @enderror` | Shows a field's first message from the error bag. A failed validation (a 422) fills it, replacing what was there; an action's next successful call empties it. `$errors` in a template and `$this->errors()` in the component are the bag: `has()`, `first()`, `get()`, `all()`, `any()`, `add()`, `clear()` |
 | `catch (ServerError $e)` | A failed call, thrown into the action at its `yield`: `getMessage()`, `$e->status`, and `$e->errors` for a validation failure's messages by field. An action needn't catch a validation failure: if it doesn't, the action stops there and the error bag shows it. A loader's isn't put in the bag |
 | `#[Server, Watch, Live('todos')]` | Runs the loader again on every page that has it when the server calls `Live::changed('todos')` (ui-server). Needs ui-server's `reverb` transport. `#[Watch]` with no properties loads once on mount |
+| `#[Live('game')]` on a browser method | Called with the data on every page when the server calls `Live::send('game', $data)` (ui-server), then renders. Needs the `reverb` transport |
 | `$this->loading('add')` | Whether that action or loader is waiting on the server; `$this->loading()` for any |
 
 After an action's server calls are done (a direct call's too), every loader runs again, so what

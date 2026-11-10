@@ -374,6 +374,16 @@ abstract class Component
      * `fn(string $name, array $props): array{html, state}`. */
     public static ?Closure $prerenderChild = null;
 
+    /**
+     * What the page shares with every component on it, as `$shared` in a template: set from an
+     * @unscripted script's data-shared (unscripted/ui-server's `share` config), and on the
+     * server before it renders, so both render the same thing.
+     *
+     * Plain data, like state: the user can change any of it, so a #[Server] method must never
+     * trust it coming back. It's what the page may see, not what the server believes.
+     */
+    public static array $shared = [];
+
     /** Where server calls are posted (over HTTP): set from an @unscripted script's data-endpoint. */
     public static string $endpoint = '/unscripted/call';
     /** Off the page (unscripted/ui-server's tests): makes the server calls instead of the
@@ -396,6 +406,7 @@ abstract class Component
             }
         }
         $data['errors'] ??= $this->errors();
+        $data['shared'] ??= self::$shared;
         ($this->view)($data);
     }
 
@@ -913,6 +924,7 @@ abstract class Component
         $search = $query === [] ? '' : '?' . http_build_query($query);
         if ($search !== (string) $location->search) {
             U::window()->history->replaceState(null, '', $location->pathname . $search . $location->hash);
+            Navigator::settled();
         }
     }
 
@@ -2158,6 +2170,11 @@ function mountPage(array $skip = []): void
         // Rendered on the server already (unscripted/ui-server's @unscripted): its state, and
         // the socket its calls go over, if they do.
         Component::$endpoint = $script->getAttribute('data-endpoint') ?? Component::$endpoint;
+        // The page's, so the first script tag that carries it sets it for every component.
+        $shared = $script->getAttribute('data-shared');
+        if ($shared !== null) {
+            Component::$shared = json_decode($shared, true, 512, JSON_THROW_ON_ERROR);
+        }
         $socket = $script->getAttribute('data-socket');
         if ($socket !== null) {
             Socket::$page ??= new Socket(json_decode($socket, true, 512, JSON_THROW_ON_ERROR));
@@ -2184,10 +2201,24 @@ function mountPage(array $skip = []): void
  * with `u-persist="id"` are carried over (with any component in them) where the new page has
  * the same id; the other components are unmounted and the new page's mounted. Back and forward
  * work. A failed fetch loads the page the ordinary way.
+ *
+ * In-page links (href="#section") are the browser's own: their history entries differ from the
+ * page shown only in the fragment, so going to them, or back and forward between them, fetches
+ * nothing and keeps the scroll the browser gives. A visit to a URL with a fragment lands on it.
  */
 final class Navigator
 {
     private static bool $installed = false;
+
+    /** The page on screen: path and query, without the fragment. */
+    private static string $shown = '';
+
+    /** The address bar now names the page on screen (after a visit, or a #[Url] change). */
+    public static function settled(): void
+    {
+        $location = U::window()->location;
+        self::$shown = (string) $location->pathname . (string) $location->search;
+    }
 
     public static function install(): void
     {
@@ -2195,6 +2226,7 @@ final class Navigator
             return;
         }
         self::$installed = true;
+        self::settled();
         U::document()->addEventListener('click', function ($event) {
             $link = $event->target->closest('a[u-navigate]');
             if ($link === null || $event->ctrlKey || $event->metaKey || $event->shiftKey || $event->button !== 0) {
@@ -2207,7 +2239,13 @@ final class Navigator
             $event->preventDefault();
             self::visit($url, true);
         });
-        U::window()->addEventListener('popstate', fn() => self::visit((string) U::window()->location->href, false));
+        U::window()->addEventListener('popstate', function () {
+            $location = U::window()->location;
+            if ((string) $location->pathname . (string) $location->search === self::$shown) {
+                return; // only the fragment moved: the browser scrolls, nothing to fetch
+            }
+            self::visit((string) $location->href, false);
+        });
     }
 
     public static function visit(string $url, bool $push): void
@@ -2266,8 +2304,16 @@ final class Navigator
         if ($push) {
             U::window()->history->pushState(null, '', $url);
         }
-        U::window()->scrollTo(0, 0);
+        self::settled();
         mountPage(skip: array_keys($kept));
+        // After mounting: components render into the page, which moves what follows them.
+        $fragment = (string) parse_url($url, PHP_URL_FRAGMENT);
+        $target = $fragment === '' ? null : $document->getElementById(rawurldecode($fragment));
+        if ($target !== null) {
+            $target->scrollIntoView();
+        } else {
+            U::window()->scrollTo(0, 0);
+        }
     }
 }
 
